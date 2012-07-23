@@ -5,7 +5,6 @@ require 'tempfile'
 require 'redis'
 require 'redis/namespace'
 require 'active_support/all'
-require 'lib/sslackey/authority_checker'
 
 class RevocationChecker
   @issuers = {}
@@ -43,7 +42,6 @@ class RevocationChecker
 
   def check_revocation_status(certificate)
     if  cached_response = RevocationChecker.cache.cached_response(certificate)
-      LOGGER.info("got a cached ocsp response: #{cached_response}") if defined?(LOGGER)
       return cached_response
     end
 

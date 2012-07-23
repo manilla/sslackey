@@ -67,7 +67,7 @@ class AuthorityChecker
   end
 
   def generate_ocsp_response(issuer_file_path, certificate_file_path, output_file_path, ocsp_url)
-    `openssl ocsp -no_nonce -CAfile #{RevocationChecker.trusted_certs_file_path} -issuer #{issuer_file_path} -cert #{certificate_file_path} -respout #{output_file_path} -url #{ocsp_url}`
+    `openssl ocsp -no_nonce -CAfile #{trusted_certs_file_path} -issuer #{issuer_file_path} -cert #{certificate_file_path} -respout #{output_file_path} -url #{ocsp_url}`
   end
 
   def read_ocsp_response(output_file)

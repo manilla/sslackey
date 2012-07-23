@@ -1,6 +1,8 @@
-# Sslackey
+# sslackey
 
-TODO: Write a gem description
+Provides Online Certificate Status Protocol (OCSP) and certificate revocation list checking for ssl certificates.
+Ruby ssl verifies the chain of trust for a certificate but does not by default check if the certificate has been revoked.
+
 
 ## Installation
 
@@ -16,9 +18,24 @@ Or install it yourself as:
 
     $ gem install sslackey
 
-## Usage
+## Requirements
 
-TODO: Write usage instructions here
+* curl installation
+* openssl installation
+* Redis or implement your own caching mechanism
+
+## Examples
+
+```ruby
+# Setup with your cache and trusted certs
+RevocationChecker.setup File.join(File.dirname(__FILE__), 'cacert.pem')
+RevocationChecker.cache = RedisRevocationCache.new("localhost", "6379")
+
+# Start checking certs
+checker = RevocationChecker.new()
+status = checker.check_revocation_status(peer_cert)
+
+
 
 ## Contributing
 
