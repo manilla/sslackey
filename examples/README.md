@@ -1,4 +1,4 @@
-SSLackey Demo
+sslackey demo
 -----------
 
 This uses net/http and monkee patches openssl to include revocation checking.
