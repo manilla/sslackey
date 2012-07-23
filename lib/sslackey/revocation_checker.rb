@@ -41,6 +41,12 @@ class RevocationChecker
   end
 
   def check_revocation_status(certificate)
+
+    unless RevocationChecker.cache
+      LOGGER.info("skipping revocation caching") if defined? LOGGER
+      return get_latest_revocation_status(certificate)
+    end
+
     if  cached_response = RevocationChecker.cache.cached_response(certificate)
       return cached_response
     end
@@ -51,6 +57,7 @@ class RevocationChecker
 
     response
   end
+
 
   def get_latest_revocation_status(certificate)
     issuer_certificate = nil
@@ -65,6 +72,8 @@ class RevocationChecker
     unless issuer_certificate
       issuer_certificate = RevocationChecker.issuers_by_name[certificate.issuer.hash]
     end
+
+    raise "No issuer certificate #{certificate.issuer} found for certificate #{certificate.subject}" unless issuer_certificate
 
     real_time_checker = AuthorityChecker.new(RevocationChecker.trusted_certs_file_path)
     response = real_time_checker.validate(certificate, issuer_certificate)

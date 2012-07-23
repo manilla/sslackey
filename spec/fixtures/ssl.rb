@@ -1,3 +1,4 @@
+#useful utility to generating a certificate revocation list given a certificate you want to be revoked.
 require 'openssl'
 require 'active_support/all'
 

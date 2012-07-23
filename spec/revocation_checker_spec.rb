@@ -4,6 +4,8 @@ require 'tempfile'
 require 'uri'
 require 'lib/sslackey/revocation_checker'
 
+LOGGER = Logger.new(STDERR)
+
 describe RevocationChecker do
 
   def load_ocsp_enabled_cert
@@ -41,12 +43,18 @@ describe RevocationChecker do
   end
 
   describe "#check_revocation_status" do
+    it "skips caching if no cache has been configured" do
+      cert = load_ocsp_enabled_cert
+      RevocationChecker.any_instance.expects(:get_latest_revocation_status).returns :successful
+      checker = RevocationChecker.new
+      checker.check_revocation_status(cert).should == :successful
+    end
     it "uses the cached response when available" do
       cert = load_ocsp_enabled_cert
       cache = mock()
       cache.expects(:cached_response).with(cert).returns :successful
       cache.expects(:cache_response).never
-      RevocationChecker.expects(:cache).returns cache
+      RevocationChecker.expects(:cache).twice.returns cache
       AuthorityChecker.any_instance.expects(:validate).never
       checker = RevocationChecker.new
       checker.check_revocation_status(cert).should == :successful
@@ -57,12 +65,13 @@ describe RevocationChecker do
       cache = mock()
       cache.expects(:cached_response).with(cert).returns nil
       cache.expects(:cache_response).with(cert, :successful)
-      RevocationChecker.expects(:cache).twice.returns cache
+      RevocationChecker.expects(:cache).at_least_once.returns cache
       AuthorityChecker.any_instance.expects(:validate).returns :successful
       checker = RevocationChecker.new
       checker.check_revocation_status(cert).should == :successful
     end
   end
+
 
   describe "#get_latest_revocation_status" do
     before do
@@ -81,10 +90,22 @@ describe RevocationChecker do
     context "when authority key info extension does not exist" do
       it "retrieves the issuer certificate using the issuer name" do
         RevocationChecker.stubs(:parse_authority_info_access)
-
-        RevocationChecker.expects(:issuers_by_name).returns "stub issuer cert"
         cert = load_non_ocsp_cert
+        issuers = {1983599852 => "an issuer"}
+        RevocationChecker.expects(:issuers_by_name).returns issuers
         @revocation_checker.get_latest_revocation_status(cert)
+      end
+    end
+
+    context "when the issuer certificate is not loaded" do
+      it "raises an error" do
+        RevocationChecker.expects(:issuers_by_name).returns Hash.new
+        issuer = stub(:hash => "12345", :to_s => "an issuer")
+        cert = mock()
+        cert.expects(:extensions).returns []
+        cert.expects(:subject).returns "test certificate"
+        cert.expects(:issuer).twice.returns issuer
+        expect{@revocation_checker.get_latest_revocation_status(cert)}.to raise_error /No issuer certificate/
       end
     end
 

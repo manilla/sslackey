@@ -8,7 +8,7 @@ class RedisRevocationCache
 
   def initialize(redis_host, redis_port)
     @redis = Redis::Namespace.new(:revocation, :redis => Redis.new(:host => redis_host, :port => redis_port, :threadsafe => true))
-    @expiration_seconds = 60
+    @expiration_seconds = 3600
   end
 
   def cached_response(certificate)
