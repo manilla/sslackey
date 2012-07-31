@@ -16,10 +16,12 @@ class AuthorityChecker
       props = extension.to_h
       if props["oid"] == "authorityInfoAccess"
         ocsp_url = AuthorityChecker.parse_authority_info_access(props["value"])
+        LOGGER.debug("got an ocsp url: #{ocsp_url}") if defined? LOGGER
       end
 
       if props["oid"] == "crlDistributionPoints"
         crl_url = AuthorityChecker.parse_crl_distribution_points(props["value"])
+        LOGGER.debug("got an crl url: #{crl_url}") if defined? LOGGER
       end
     end
     if ocsp_url
@@ -44,6 +46,7 @@ class AuthorityChecker
         return url
       end
     end
+    return nil
   end
 
   def self.parse_crl_distribution_points(crl_string)
