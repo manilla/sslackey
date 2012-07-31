@@ -41,9 +41,14 @@ describe AuthorityChecker do
     end
 
     context "with a single authority info line" do
-      it "finds the right value" do
+      it "finds the right value when the string contains OCSP info" do
         ocsp_string = "OCSP - URI:http ://ocsp.verisign.com"
         AuthorityChecker.parse_authority_info_access(ocsp_string).should == "http ://ocsp.verisign.com"
+      end
+
+      it "returns nothing when the string contains only crt info" do
+        ocsp_string = "CA Issuers - URI : http : // gtssl-aia.geotrust.com/gtssl.crt"
+        AuthorityChecker.parse_authority_info_access(ocsp_string).should be_nil
       end
     end
   end
