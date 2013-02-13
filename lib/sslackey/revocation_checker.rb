@@ -43,7 +43,7 @@ class RevocationChecker
   def check_revocation_status(certificate)
 
     unless RevocationChecker.cache
-      LOGGER.info("skipping revocation caching") if defined? LOGGER
+      LOGGER.info("Sslackey: skipping revocation caching") if defined? LOGGER
       return get_latest_revocation_status(certificate)
     end
 

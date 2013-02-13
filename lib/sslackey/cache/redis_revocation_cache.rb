@@ -13,13 +13,13 @@ class RedisRevocationCache
 
   def cached_response(certificate)
     response = redis.get(get_key(certificate))
-    LOGGER.info("got a cached response: #{response}") if response && defined?(LOGGER)
+    LOGGER.info("Sslackey: Got a cached response: #{response}") if response && defined?(LOGGER)
     response.try(:to_sym)
   end
 
   def cache_response(certificate, response)
     key = get_key(certificate)
-    LOGGER.info "caching revocation response for certificate: #{certificate.subject}" if defined?(LOGGER)
+    LOGGER.info "Sslackey: Caching revocation response for certificate: #{certificate.subject}" if defined?(LOGGER)
     redis.set(key, response)
     redis.expire(key, expiration_seconds)
   end
